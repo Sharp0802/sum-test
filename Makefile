@@ -1,29 +1,29 @@
 
-PROG := sec86
+PROG := sum-test
 
-FLAGS += -I. -static -lgcc_s #-l/usr/x86_64-linux-uclibc/usr/lib/libc.a
-FLAGS := -Oz -nostdlib -fwhole-program
+CC := g++
+
+FLAGS := -I. -Oz
 FLAGS += -ffunction-sections -fdata-sections -fno-asynchronous-unwind-tables
 FLAGS += -m32 -march=i686
-FLAGS += -fno-stack-protector -fno-ident
-FLAGS += -Wl,-z,norelro -no-pie -Wl,--build-id=none
-FLAGS += -Wl,--wrap=write -Wl,--wrap=read -Wl,--wrap=exit
+FLAGS += -fno-stack-protector -Wl,--build-id=none
 
-CFLAGS := -std=c99 -Wall -Wextra
+CFLAGS := -std=c++11 -Wall -Wextra
 LDFLAGS := -s -Wl,--strip-all
 
-SRCs := $(wildcard *.c)
-OBJs := $(SRCs:.c=.o)
+SRCs := $(wildcard *.cpp)
+OBJs := $(SRCs:.cpp=.o)
 SRCs += $(wildcard *.h)
 
 all: $(OBJs)
 	mkdir -p bin
-	gcc $(FLAGS) $(LDFLAGS) $(addprefix tmp/,$^) -o bin/$(PROG)
-	strip -s -R .gnu.hash -R .note.gnu.property -R .got.plt bin/$(PROG)
+	$(CC) $(FLAGS) $(LDFLAGS) $^ -o bin/$(PROG)
+	strip -s -R .gnu.hash -R .note.gnu.property bin/$(PROG)
 
-%.o: %.c
-	mkdir -p tmp
-	gcc $(FLAGS) $(CFLAGS) -c $< -o tmp/$@
+%.o: %.cpp
+	$(CC) $(FLAGS) $(CFLAGS) -c $< -o $@
+
+sum.o: sum.cpp
 
 clean:
 	rm -rf tmp
